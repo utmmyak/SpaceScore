@@ -1,0 +1,9 @@
+{{ object.name }} {{ object.name }} {{ object.name }}
+{{ object.renderType }}
+{{ object.house_verbose }}
+{% for official in object.committee_officials.all %}
+{{ official.firstName }} {{official.lastName}}
+{% endfor %}
+{% for law in object.committee_laws.all %}
+{{ law.name }}
+{% endfor %}

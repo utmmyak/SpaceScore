@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %} {{Amendment}} Details{% endblock %}
+{% block includes %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/tooltipster-master/css/tooltipster.css" />
+{% endblock %}
+{% block header %}<meta name="description" content="{{ Amendment }} details - SpaceScore - Track your Legislators' records on space with detailed ratings on human spaceflight, unmanned spaceflight, space privatization and public spaceflight.">{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="col-xs-7" style="padding-right: 2px">
+			<div class="row">
+				<div class="col-xs-12" style="padding: 0; margin-left: 16px">
+					<div class="row" style="margin: 0 -15px 0 -5px">
+						<h1 id="name">{{ Amendment.name }}</h1>
+						{{ Amendment.getQuickInfoText }}
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-info">
+						<div class="panel-heading"><h3 class="panel-title">Description</h3></div>
+						<div class="panel-body">{{Amendment.description|linebreaks}}</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-5">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h3 class="panel-title">SpaceScore Weights</h3></div>
+				<div class="panel-body">
+					<div class="row"
+						><div class="col-xs-6 colscore"><div id="scorehsf"{% if Amendment.hsfWeight == None %} class="noscore"{% endif %}>
+							<span class="score-title">Human Spaceflight:</span>
+							<input id="hsfweight-display" value="{% widthratio Law.hsfWeight 1 100 %}" data-fgColor="#7F00FF" data-thickness=.25 data-skin="tron">
+						</div
+						></div><div class="col-xs-6 colscore"><div id="scoreusf"{% if Amendment.unmannedsfWeight == None %} class="noscore"{% endif %}>
+							<span class="score-title">Unmanned Spaceflight:</span>
+							<input id="usfweight-display" value="{% widthratio Law.unmannedsfWeight 1 100 %}" data-fgColor="#FFFF00" data-thickness=.25 data-skin="tron">
+						</div
+					></div></div
+					><div class="row"
+							><div class="col-xs-6 colscore"><div id="scorenat"{% if Amendment.publicWeight == None %} class="noscore"{% endif %}>
+								<span class="score-title">Public Spaceflight:</span>
+							<input id="pubweight-display" value="{% widthratio Law.publicWeight 1 100 %}" data-fgColor="#8B0000" data-thickness=.25 data-skin="tron"
+							></div></div
+							><div class="col-xs-6 colscore"><div id="scorepriv"{% if Amendment.privatizationWeight == None %} class="noscore"{% endif %}>
+								<span class="score-title">Commercial Spaceflight:</span>
+							<input id="privweight-display" value="{% widthratio Law.privatizationWeight 1 100 %}" data-fgColor="#74C365" data-thickness=.25 data-skin="tron"
+							></div></div
+						></div>
+					<div class="row" style="margin-top: 20px">
+						<div class="center-block" style="text-align: center">
+							<div id="scorebase">
+								<span id="basescore-title">Base Score:</span>
+								<input id="baseweight-display" value="{% widthratio Law.baseWeight 1 100 %}" data-fgColor="#00FFFF" data-thickness=.35 data-skin="tron">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+	<div class="row">
+		<div class="col-xs-8">
+			<div class="panel panel-primary">
+				<div class="panel-heading"><h3 class="panel-title">Our Perspective</h3></div>
+				<div class="panel-body">{% if Amendment.editorialComment %}{{Amendment.editorialComment|linebreaks}}{% else %}Stay tuned.{% endif %}</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		{% if Amendment.publicComment %}<div class="col-xs-6"><div class="panel panel-info">
+			<div class="panel-heading"><h3 class="panel-title">Public Spaceflight Perspective</h3></div>
+			<div class="panel-body">{{Amendment.publicComment|linebreaks}}</div>
+		</div></div>{% endif %}{% if Amendment.privatizationComment %}
+		<div class="col-xs-6"><div class="panel panel-info">
+			<div class="panel-heading"><h3 class="panel-title">Commercial Spaceflight Perspective</h3></div>
+			<div class="panel-body">{{Amendment.privatizationComment|linebreaks}}</div>
+		</div></div>{% endif %}
+	</div>
+	<div class="row">
+		{% if Amendment.hsfComment %}<div class="col-xs-6"><div class="panel panel-info">
+			<div class="panel-heading"><h3 class="panel-title">Human Spaceflight Perspective</h3></div>
+			<div class="panel-body">{{Amendment.hsfComment|linebreaks}}</div>
+		</div></div>{% endif %}{% if Amendment.unmannedsfComment %}
+		<div class="col-xs-6"><div class="panel panel-info">
+			<div class="panel-heading"><h3 class="panel-title">Unmanned Spaceflight Perspective</h3></div>
+			<div class="panel-body">{{Amendment.unmannedsfComment|linebreaks}}</div>
+		</div></div>{% endif %}
+	</div>
+	
+	<div class="row">
+		<div class="col-xs-6">
+			<div class="panel panel-info">
+				<div class="panel-heading"><h3 class="panel-title">Parent Law</h3></div>
+				<div class="panel-body">
+					<ul class="search-results details-relationlist">
+					    <li><a href="{{ Amendment.parentLaw.url }}" id="{{ Amendment.parentLaw|slugify }}" class="law" style="min-height: 55px"><span class="result-text-container" style="margin-left: 10px"> {{ Amendment.parentLaw }} &bull; {{Amendment.parentLaw.getQuickInfoText}}</span></a></li>
+					    <li>{% if Amendment.isPartOfLaw %}This amendment has been incorperated into the current version of this {% if Amendment.parentLaw.datePassed %}law{% else %}bill{% endif %}.{% else %}This amendment is has not been reconciled with the current version of this {% if Amendment.parentLaw.datePassed %}law{% else %}bill{% endif %}.{% endif %}</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div style="clear:both"></div>
+
+	<div class="row">
+		<div class="col-xs-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading"><h3 class="panel-title">Officials Supporting</h3></div>
+				<div class="panel-body">
+					{% if Amendment.officials_supporting %}
+					<ul class="search-results details-relationlist">
+					{% for Official in Amendment.officials_supporting.all %}
+						<li><a href="{{ Official.url }}" id="{{Official|slugify}}" class="official" style="height: 55px"><span class="result-text-container" style="top: 4px"> {{ Official }} &bull; {{Official.getQuickInfoText}}</span></a></li>
+					{% endfor %}
+					</ul>
+					{% else %}
+					<p>This Amendment is supported by no one so far.</p>{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<br/>
+{% endblock %}
+{% block footer %}
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script><script src="{{STATIC_URL}}/tooltipster-master/js/jquery.tooltipster.min.js"></script>
+	<script src="{{STATIC_URL}}/Amendment-details.tooltip.js"></script>
+	<script type="text/javascript" src="{{STATIC_URL}}/jquery.knob.js"></script>
+	<script type="text/javascript" src="{{STATIC_URL}}/bill-details-init.js"></script>
+{% endblock %}

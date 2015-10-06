@@ -1,0 +1,14 @@
+{% extends "search/search.html" %}
+{% block heading_text %}<h1>Explore Bills</h1>{% endblock %}
+{% block filters %}
+            <div class="col-xs-4" style="width: 34.6%; padding-left: 2px; padding-right: 0; margin-right: -22px">
+                <div class="btn-group">
+                    <span class="input-group-addon btn-lg" style="background-color: rgb(84, 165, 235);border-color: #357ebd;color:white;display:inline-block;width:55px;float:left;height: 33px;line-height: 1.3;">Type</span>
+                    <a class="btn btn-primary" id="my-officials-link" href="/CongressScore/MyLegislators/?q=">My Legislators</a>
+                    <a class="btn btn-primary active" href="/CongressScore/Bill/">Bills</a>
+                    <a class="btn btn-primary replace-link" href="/CongressScore/Legislator/">Legislators</a>
+                    <a class="btn btn-primary" href="/CongressScore/">All</a>
+                </div>
+            </div>
+{% endblock %}
+{% block officials %}{% endblock %}{# don't need officials in laws page #}

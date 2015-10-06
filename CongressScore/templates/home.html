@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %} Home{% endblock %}
+{% block includes %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/tooltipster-master/css/tooltipster.css" /><script type="text/javascript" src="{{STATIC_URL}}jquery.knob.js"></script><script src="{{STATIC_URL}}us-map/lib/raphael.min.js"></script><script src="{{STATIC_URL}}us-map/jquery.usmap.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ // render above-the-fold visual content first
+    $( "#score-display" ).knob({
+        'format' : function(val) {
+            //$(this.i).val(this.cv + '%');
+            return val + '%';
+        },
+        width: 250, height: 250, readOnly: true, min: 0, max: 100, displayInput: true});
+    $( "#science_officials" ).knob({
+        width: 250, height: 250, readOnly: true, min: 0, displayInput: true});
+    $( "#priv_officials" ).knob({
+        width: 250, height: 250, readOnly: true, min: 0, displayInput: true});
+    $( "#pub_officials" ).knob({
+        width: 250, height: 250, readOnly: true, min: 0, displayInput: true});
+    $( "#hsf_officials" ).knob({
+        width: 250, height: 250, readOnly: true, min: 0, displayInput: true});
+    $( "#usf_officials" ).knob({
+        width: 250, height: 250, readOnly: true, min: 0, displayInput: true});
+    $( "#high_basescore_officials" ).knob({
+        width: 250, height: 250, readOnly: true, min: 0, displayInput: true});
+    $( "#map" ).usmap({
+        stateStyles: {fill: '#B0E0E6'},
+        showLabels: true,
+        stateHoverStyles: {fill: 'red'},
+        click: function(event, data) {
+            if (data.name == "OR") {
+                window.location = "/CongressScore/Legislator/?q=Oregon";
+            }
+            else if (data.name == "IN"){
+                window.location = "/CongressScore/Legislator/?q=Indiana";
+            }
+            else {
+                window.location = "/CongressScore/Legislator/?q="+data.name;
+            }
+        }
+    });
+});
+</script>{% endblock %}
+{% block header %}<meta name="description" content="SpaceScore Overview - Track your Legislators' record on space with detailed ratings on human spaceflight, unmanned spaceflight, space privatization and public spaceflight.">{% endblock %}
+{% block content %}
+{% load thumbnail %}
+<div style="text-align: center" id="home-stats">
+    <h1 class="heading cta-heading" >Track your Legislators' record on space.</h1>
+    <!--<div style="text-align: center; margin-bottom: 20px"><button id="get-started-btn" class="btn btn-lg btn-danger">Get Started</button></div>-->
+    <div class="row" id="find-legislator-box">
+        <div class="col-xs-5">
+            <div class="input-group" style="height: 46px; margin-top: 139px; margin-left: 42px">
+                <input type="text" class="form-control input-lg" type="text" id="zip_entry" placeholder="Zip Code" maxlength="5">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger btn-lg" type="button" id="zip_button">Go!</button>
+                </span>
+            </div><!-- /input-group -->
+        </div>
+        <div class="col-xs-7"><div id="map" style="width: 560px; height: 320px; margin-bottom: -20px; padding-left: 10px; margin-left: auto; margin-right: auto; display:inline-block"></div></div>
+    </div>
+    <div id="zip-error" style="margin-top: -12px; margin-bottom: -12px; padding: 0">&nbsp;&nbsp;</div>
+
+    <div class="bkg-image" id="stars-planet-lg-img"></div>
+    <div id="stars-planet-img-bottom-filler"></div>
+
+
+    {% if newsInfo %}
+    <div id="news-carousel" class="carousel slide" style="width: 1024px; height: 560px; margin-left: -8px; margin-right: auto; margin-top: -560px; " data-ride="carousel">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        {% for newsStory in newsInfo %}{% if forloop.first %}<li data-target="#news-carousel" data-slide-to="{{forloop.counter0}}" class="active"></li>
+        {% else %}<li data-target="#news-carousel" data-slide-to="{{forloop.counter0}}"></li>
+        {% endif %}{% endfor %}
+      </ol>
+
+      <!-- Wrapper for slides -->
+      <div class="carousel-inner" role="listbox">
+        {% for newsStory in newsInfo %}<div class="item{% if forloop.first %} active{% endif %}" onclick="location.href='{{ newsStory.link }}';" style="cursor: pointer;">
+            {# <a href="{{newsStory.link}}"> #}
+                {% thumbnail newsStory.picture "1024x560" crop="center" format="PNG" as im %}
+                    <img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}">
+                {% endthumbnail %}
+            {# </a> #}
+            <div class="carousel-caption">
+                {# <a href="{{newsStory.link}}" style="color: white; text-decoration: none"> #}<h3>{{newsStory.name}}</h3>
+                {{ newsStory.description }}{# </a> #}
+            </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Controls -->
+      <a class="left carousel-control" href="#news-carousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#news-carousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+
+    {% endif %}
+
+    <!--<h2 id="find-legislator-txt">Enter zip code or select your state to find your Legislators</h2>-->
+    <div class="one-px-shadow-separator"></div>
+    <h2>Number of Legislators</h2>
+    <h1 style="font-size: 50px; font-weight:bold; font-family:Arial; margin-top: 100px; margin-bottom: 100px">{{ total_officials }}</h1>
+
+    <h2>Average SpaceScore</h2>
+    <input id="score-display" value="{{ avg_score|floatformat:"0" }}" data-fgColor="#990000">
+
+    <h2 id="comm-spaceflight-heading">Legislators who like commercial spaceflight</h2>
+
+    <div class="officials_block" id="priv_officials_block" style="margin-top: -10px">
+    <div id="priv_officials_cont" class="cat_knob_cont"><input id="priv_officials" value="{{ priv_officials_len }}" data-fgColor="#990000" data-max="{{ total_officials }}"></div>
+    <div class="off_list" id="privscore_offs" style="margin-top: -300px; position: relative; text-align: center">
+    {% for official in priv_officials %}
+    <div style="display: inline-block" ><a href="{{ official.url }}" data-toggle="tooltip" title="{% if official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{official}} &bull; {{official.getQuickInfoText}}" class="off_micro_lnk off_usf">{{official.getMicroPortraitCode}}</a></div>
+    {% endfor %}
+    <div id="priv_knob"></div>
+    </div></div>
+    <div style="clear: both;"></div>
+
+    <h2>Legislators who like public spaceflight</h2>
+
+    <div class="officials_block" id="pub_officials_block" style="margin-top: -10px">
+    <div id="pub_officials_cont" class="cat_knob_cont" ><input id="pub_officials" value="{{ pub_officials_len }}" data-fgColor="#990000" data-max="{{ total_officials }}"></div>
+    <div class="off_list" id="pubscore_offs" style="display: hidden; margin-top: -300px; position: relative; text-align: center; max-height: 600px">
+    {% for official in pub_officials %}
+    <div style="display: inline-block" ><a href="{{ official.url }}" data-toggle="tooltip" title="{% if official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{official}} &bull; {{official.getQuickInfoText}}" class="off_micro_lnk off_usf">{{official.getMicroPortraitCode}}</a></div>
+    {% endfor %}
+    <div id="pub_knob"></div>
+    </div></div>
+
+    <h2>Legislators who like human spaceflight</h2>
+
+    <div class="officials_block" id="hsf_officials_block" style="margin-top: -10px">
+    <div id="hsf_officials_cont" class="cat_knob_cont" ><input id="hsf_officials" value="{{ hsf_officials_len }}" data-fgColor="#990000" data-max="{{ total_officials }}"></div>
+    <div class="off_list" id="hsfscore_offs" style="display: hidden; margin-top: -300px; position: relative; text-align: center">
+    {% for official in hsf_officials %}
+    <div style="display: inline-block" ><a href="{{ official.url }}" data-toggle="tooltip" title="{% if official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{official}} &bull; {{official.getQuickInfoText}}" class="off_micro_lnk off_usf">{{official.getMicroPortraitCode}}</a></div>
+    {% endfor %}
+    <div id="hsf_knob"></div>
+    </div></div>
+
+    <h2>Legislators who like unmanned spaceflight</h2>
+
+    <div class="officials_block" id="usf_officials_block" style="margin-top: -10px">
+    <div id="usf_officials_cont" class="cat_knob_cont" ><input id="usf_officials" value="{{ usf_officials_len }}" data-fgColor="#990000" data-max="{{ total_officials }}"></div>
+    <div class="off_list" id="usfscore_offs" style="display: hidden; margin-top: -300px; position: relative; text-align: center">
+    {% for official in usf_officials %}
+    <div style="display: inline-block" ><a href="{{ official.url }}" data-toggle="tooltip" title="{% if official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{official}} &bull; {{official.getQuickInfoText}}" class="off_micro_lnk off_usf">{{official.getMicroPortraitCode}}</a></div>
+    {% endfor %}
+    <div id="usf_knob"></div>
+    </div></div>
+
+    <h2>Legislators who love space</h2>
+
+    <div class="officials_block" id="high_basescore_officials_block" style="margin-top: -10px">
+    <div class="cat_knob_cont" id="high_basescore_officials_cont"><input id="high_basescore_officials" value="{{ high_basescore_officials_len }}" data-fgColor="#990000" data-max="{{ total_officials }}"></div>
+    <div class="off_list" id="bscore_offs" style="display: hidden; margin-top: -300px; position: relative; text-align: center">
+    {% for official in high_basescore_officials %}
+    <div style="display: inline-block" ><a href="{{ official.url }}" data-toggle="tooltip" title="{% if official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{official}} &bull; {{official.getQuickInfoText}}" class="off_micro_lnk off_basescore">{{official.getMicroPortraitCode}}</a></div>
+    {% endfor %}
+    <div id="high_basescore_knob"></div>
+    </div></div>
+    <br/>
+    <div style="clear: both; height: 800px"></div>
+
+</div>{% endblock %}
+{% block footer %}
+<script type="text/javascript" src="{{STATIC_URL}}tooltipster-master/js/jquery.tooltipster.min.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}jquery.hoverIntent.minified.js"></script>
+<script type="text/javascript" src="{{STATIC_URL}}home-init2.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip({'placement': 'bottom', container: 'body'});
+  });
+</script>
+<!-- This website is property of SpaceScore, a non-profit organization. It is built by the SpaceScore team. -->
+{% endblock %}

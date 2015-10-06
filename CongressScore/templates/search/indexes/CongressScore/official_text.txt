@@ -1,0 +1,21 @@
+{{ object.firstName }}
+{{ object.lastName }}
+{{ object.renderType }}
+{{ object.district }}
+{{ object.districtState }}
+{{ object.description }}
+{{ object.house_verbose }}
+{{ object.party_verbose }}
+{{ object.nextReelection }}
+{{ object.lastElected }}
+{{ object.baseScore }}
+{{ object.state_verbose }}
+{% comment %}{% for law in object.supportingLaws %}
+{{ law.name }}
+{% endfor %}
+{% for committee in object.officialCommittees %}
+{{ committee.name }}
+{% endfor %}
+{% for specialInfo in object.officialSpecialInfo %}
+{{ specialInfo.name }}
+{% endfor %}{% endcomment %}

@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %} {{Official}} Details{% endblock %}
+{% block includes %}
+<script src="{% static 'django_evercookie/swfobject-2.2.min.js' %}"></script>
+<script src="{% url 'django_evercookie.views.evercookie_core' %}"></script>
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/tooltipster-master/css/tooltipster.css" />
+{% endblock %}
+{% block header %}<meta name="description" content="{{ Official }} details - SpaceScore - Track your Legislators' records on space with detailed ratings on human spaceflight, unmanned spaceflight, space privatization and public spaceflight.">{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-xs-7" style="padding-right: 2px">
+            <div class="row">
+                <div class="col-xs-4" style="margin-left: 10px; padding: 0; line-height: 1; padding-left: 4px; margin-bottom: 10px">{{ Official.getPortraitUrl }}</div>
+                <div class="col-xs-7" style="padding: 0; margin-left: 16px">
+                    <div class="row" style="margin: 0 -15px 0 -5px">
+                        <h1 id="name">{% if Official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{ Official.fullName }}</h1>
+                        <span class="lead">{{ Official.getQuickHeaderInfo }}</span>
+                    </div>
+                    <div class="row" style="margin: 0 -15px 0 -5px">
+                        <div class="col-xs-6" style="padding: 0">
+                            <div class="panel panel-info">
+                                <div class="panel-heading"><h3 class="panel-title">Latest Activity</h3></div>
+                                <div class="panel-body" style="font-size: 12pt">{{Official.getLatestAction|linebreaks}}</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6" style="padding: 0 0 0 6px; margin-right: 0px">
+                            <div class="panel panel-default">
+                                <div class="panel-body" style="padding: 0">
+                                    <ul style="padding: 0; padding-left: -5px; padding-right: -5px; list-style-type: none; text-align: center">
+                                        {% if Official.firstElected %}
+                                        <li style="margin-top: 10px; margin-left: 0; margin-right: 0">
+                                            <h4>First Term Started:</h4> {{ Official.firstElected|date:"F d, Y" }}
+                                        </li>
+                                        {% endif %}<li style="margin-left: -15px; margin-right: -15px">
+                                            <h4>Term Started:</h4> {{ Official.lastElected|date:"F d, Y" }}
+                                        </li>
+
+                                        <li style="margin-left: -15px; margin-right: -15px">
+                                            <h4>Term Ends:</h4> {{ Official.nextReelection|date:"F d, Y" }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel panel-info scoregrid">
+                        <div class="panel-heading"><h3 class="panel-title">Background</h3></div>
+                        <div class="panel-body">
+                            <dl class="dl-horizontal" style="margin:0">
+                                {% if Official.education %}
+                                    <dt>Education</dt>
+                                    <dd>{{ Official.education|linebreaks }}</dd>
+                                {% endif %}
+                                {% if Official.occupation %}
+                                    <dt>Occupation</dt>
+                                    <dd>{{ Official.occupation }}</dd>
+                                {% endif %}
+                                    <dt>Residence</dt>
+                                    <dd>{% if Official.placeOfResidence %}{{ Official.placeOfResidence }}{% else %}{{ Official.state_verbose }}{% endif %}</dd>
+                                    <dt>Born</dt>
+                                    <dd>{{ Official.dateOfBirth|date:"F d, Y" }}</dd>
+                                {% if Official.netWorth %}
+                                    {% load humanize %}
+                                    <dt>Net Worth</dt>
+                                    <dd>${{ Official.netWorth | intcomma }}</dd>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>{% if Official.description %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h3 class="panel-title">Description</h3></div>
+                        <div class="panel-body">{{Official.description|linebreaks}}</div>
+                    </div>
+                </div>
+            </div>{% endif %}
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Your Voice</h3></div>
+                <div class="panel-body">
+                    <div class="row peoples-voice-row">
+                        <div class="col-sm-6">
+                            <input id="peoples-score-display" value="{% if Official.peoplesQuantity == 0 %}N/A{% else %}{% widthratio Official.peoplesScore 1 100 %}{% endif %}" data-fgColor="#357ebd" data-thickness=.25 data-skin="tron"/>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="button" class="btn btn-lg btn-danger" data-toggle="modal" data-target="#voteModal">Vote</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-5">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                            <canvas id="official-perspective-chart" width="385" height="375" data-hsfscore="{{ Official.hsfScore|floatformat:"0" }}" data-usfscore="{{ Official.unmannedsfScore|floatformat:"0" }}" data-pubscore="{{ Official.publicScore|floatformat:"0" }}" data-privscore="{{ Official.privatizationScore|floatformat:"0" }}" style="margin-left:auto;margin-right:auto;display:block"></canvas><span class="tooltip-selector" id="private-tooltip"></span><span class="tooltip-selector" id="public-tooltip"></span><span class="tooltip-selector" id="unmanned-tooltip"></span><span class="tooltip-selector" id="human-tooltip"></span>
+                            <!--<div class="col-xs-6 colscore"><div id="scorehsf"{% if Official.hsfScore == None %} class="noscore"{% endif %}>
+                            <span class="score-title">Human Spaceflight:</span>
+                            <input id="hsfscore-display" value="{% if Official.hsfScore == None %}N/A{% else %}{{ Official.hsfScore|floatformat:"0" }}{% endif %}" data-fgColor="#7F00FF" data-thickness=.25 data-skin="tron">
+                        </div
+                        ></div><div class="col-xs-6 colscore"><div id="scoreusf"{% if Official.unmannedsfScore == None %} class="noscore"{% endif %}>
+                            <span class="score-title">Unmanned Spaceflight:</span>
+                            <input id="usfscore-display" value="{% if Official.unmannedsfScore == None %}N/A{% else %}{{ Official.unmannedsfScore|floatformat:"0" }}{% endif %}" data-fgColor="#FFFF00" data-thickness=.25 data-skin="tron">
+                        </div
+                    ></div></div
+                    ><div class="row"
+                        ><div class="col-xs-6 colscore"><div id="scorenat"{% if Official.publicScore == None %} class="noscore"{% endif %}>
+                            <span class="score-title">Public Spaceflight:</span>
+                            <input id="pubscore-display" value="{% if Official.publicScore == None %}N/A{% else %}{{ Official.publicScore|floatformat:"0" }}{% endif %}" data-fgColor="#8B0000" data-thickness=.25 data-skin="tron"
+                        ></div></div
+                        ><div class="col-xs-6 colscore"><div id="scorepriv"{% if Official.privatizationScore == None %} class="noscore"{% endif %}>
+                            <span class="score-title">Commercial Spaceflight:</span>
+                            <input id="privscore-display" value="{% if Official.privatizationScore == None %}N/A{% else %}{{ Official.privatizationScore|floatformat:"0" }}{% endif %}" data-fgColor="#74C365" data-thickness=.25 data-skin="tron"
+                        ></div></div
+                        >-->
+                    </div>
+                    <div class="row">
+                        <div class="center-block" style="text-align: center">
+                            <div id="scorebase">
+                                <span id="basescore-title">Base Score:</span>
+                                <div style="margin-left: auto; margin-right: auto; width: 170px"><input id="basescore-display" value="{% if Official.baseScore == None %}N/A{% else %}{{ Official.baseScore|floatformat:"0" }}{% endif %}" data-fgColor="#7dd2e4" data-thickness=.35 data-skin="tron"></div>
+                                <span class="tooltipster-icon basescore-tooltip popover" id="bscore-tooltip">?</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-8">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Our Perspective</h3></div>
+                <div class="panel-body">{% if Official.editorialComment %}{{Official.editorialComment|linebreaks}}{% else %}Stay tuned.{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if Official.publicComment %}<div class="col-xs-6"><div class="panel panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Public Spaceflight Perspective</h3></div>
+            <div class="panel-body">{{Official.publicComment|linebreaks}}</div>
+        </div></div>{% endif %}{% if Official.privatizationComment %}
+        <div class="col-xs-6"><div class="panel panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Commercial Spaceflight Perspective</h3></div>
+            <div class="panel-body">{{Official.privatizationComment|linebreaks}}</div>
+        </div></div>{% endif %}
+    </div>
+    <div class="row">
+        {% if Official.hsfComment %}<div class="col-xs-6"><div class="panel panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Human Spaceflight Perspective</h3></div>
+            <div class="panel-body">{{Official.hsfComment|linebreaks}}</div>
+        </div></div>{% endif %}{% if Official.unmannedsfComment %}
+        <div class="col-xs-6"><div class="panel panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Unmanned Spaceflight Perspective</h3></div>
+            <div class="panel-body">{{Official.unmannedsfComment|linebreaks}}</div>
+        </div></div>{% endif %}
+    </div>
+    
+    <div class="row">
+        {% if Official.officialCommittees %}
+        <div class="col-xs-6">
+            <div class="panel panel-info">
+                <div class="panel-heading"><h3 class="panel-title">Committees</h3></div>
+                <div class="panel-body">
+                    <div class="list-group">
+                        {% for Committee in Official.officialCommittees %}
+                            <a href="{{ Committee.url }}" id="{{Committee|slugify}}" class="list-group-item"><span class="result-text-container" style="top: 4px"> {{ Committee }} &bull; {{ Committee.getQuickInfo }}</span></a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <dl style="margin:0">
+                        <dd>
+                            Track this {% if Official.house == 'HS' %}Representative {% else %}Senator {% endif %} and {% if Official.sex == 'M' %}his{% else %}her{% endif %} other preferences on <a href="{{ Official.govtrackLink }}">GovTrack.us</a>
+                        </dd>
+                        {% if Official.website %}
+                            <dt>Official website</dt>
+                            <dd><a href="{{ Official.website }}">{{ Official.website }}</a></dd>
+                        {% endif %}
+                        {% if Official.twitterID %}
+                            <dt>Twitter</dt>
+                            <dd><a href="https://twitter.com/{{ Official.twitterID }}">@{{ Official.twitterID }}</a></dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="clear:both"></div>
+
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Bills Supporting</h3></div>
+                <div class="panel-body">
+                    {% if Official.supportingLaws %}
+                    <div class="list-group">
+                        {% for Law in Official.supportingLaws %}
+                        <a href="{{ Law.url }}" id="{{Law|slugify}}" class="list-group-item"><span class="result-text-container"> {{ Law }} &bull; {{Law.getQuickInfoText}}</span></a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>This legislator has not supported any space-related laws so far.</p>{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading"><h3 class="panel-title">Bills Opposing</h3></div>
+                <div class="panel-body">
+                    {% if Official.opposingLaws %}
+                    <div class="list-group">
+                        {% for Law in Official.opposingLaws %}
+                        <a href="{{ Law.url }}" id="{{Law|slugify}}" class="list-group-item"><span class="result-text-container"> {{ Law }} &bull; {{Law.getQuickInfoText}}</span></a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p>This legislator has not opposed any space-related laws so far.</p>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="voteModal" aria-labelledby="voteModalLabel">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 id="voteModalLabel" class="modal-title">Your Opinion on {% if Official.house == 'HS' %}Rep. {% else %}Sen. {% endif %}{{ Official.fullName }}</h4>
+                </div>
+                <form id="usr-vote-form">
+                    <div class="modal-body">
+                        {% csrf_token %}
+                        <span class="star-rating">
+                            <input type="radio" data-send="0" class="vote-options" id="vote-option-1" name="vote-options" value="1"><i></i>
+                            <input type="radio" data-send="0.25" class="vote-options" id="vote-option-2" name="vote-options" value="2"><i></i>
+                            <input type="radio" data-send="0.5" class="vote-options" id="vote-option-3" name="vote-options" value="3"><i></i>
+                            <input type="radio" data-send="0.75" class="vote-options" id="vote-option-4" name="vote-options" value="4"><i></i>
+                            <input type="radio" data-send="1" class="vote-options" id="vote-option-5" name="vote-options" value="5"><i></i>
+                        </span>
+                        <div class="alert alert-success fade in" style="display: none" role="alert" id="vote-alert">
+                            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" id="alert-glyph"></span>
+                            <span id="vote-msg"><strong>Success</strong> Your vote has been recorded.</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" id="vote-go" class="btn btn-primary">Vote</button>
+                    </div>
+                </form>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <br/>
+{% endblock %}
+{% block footer %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script><script type="text/javascript" src="{{STATIC_URL}}/jquery.knob.js"></script><script type="text/javascript" src="{{STATIC_URL}}/details-init.js"></script>
+{% endblock %}

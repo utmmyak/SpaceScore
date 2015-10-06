@@ -1,0 +1,10 @@
+{{ object.name }}
+{{ object.renderType }}
+{{ object.description }}
+{{ object.house_verbose }}
+{{ object.govtrackLink }}
+{{ object.editorialComment }}
+{{ object.hsfComment }}
+{{ object.unmannedsfComment }}
+{{ object.privatizationComment }}
+{{ object.publicComment }}

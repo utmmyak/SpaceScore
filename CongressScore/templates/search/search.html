@@ -1,0 +1,149 @@
+{% extends "base.html" %}{% load highlight %}
+{% block includes %}{% endblock %}
+{% block header %}<meta name="description" content="Search for your Legislators' records on space with detailed ratings on human spaceflight, unmanned spaceflight, space privatization and public spaceflight.">
+<link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css"/>
+{% endblock %}
+{% block content %}
+    {% block heading_text %}<h1>Explore SpaceScore</h1>{% endblock %}
+    <form method="get" id="search-form" action=".">
+            <div class="row search-topbar">
+                <div class="col-xs-4" style="padding-right: 0; margin-right: -15px">
+                    <div style="display: inline-block">
+                        <div class="input-group" style="width: 310px">
+                            {% block search %}<input id="id_q" name="q" type="search" class="form-control" value="{{ query }}">{% endblock %}
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-primary" id="zip_button"><span class="glyphicon glyphicon-search"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            {% block filters %}
+                <div class="col-xs-4" style="width: 34.6%; padding-left: 2px; padding-right: 0; margin-right: -22px">
+                    <div class="btn-group">
+                        <span class="input-group-addon btn-lg" style="background-color: rgb(84, 165, 235);border-color: #357ebd;color:white;display:inline-block;width:55px;float:left;height: 33px;line-height: 1.3;">Type</span>
+                        <a class="btn btn-primary" id="my-officials-link" href="/CongressScore/MyLegislators/?q=">My Legislators</a>
+                        <a class="btn btn-primary replace-link" href="/CongressScore/Bill/">Bills</a>
+                        <a class="btn btn-primary replace-link" href="/CongressScore/Legislator/">Legislators</a>
+                        <a class="btn btn-primary active" href="/CongressScore/">All</a>
+                    </div>
+                </div>
+                <div class="col-xs-4"></div>
+            {% endblock %}
+            </div>
+            {% if not content_types %}
+                <div>
+                    <div class="alert alert-danger alert-no-results" role="alert">
+                        <strong>No results</strong> found for your search.
+                    </div>
+                </div>
+            {% else %}
+                {% block officials %}
+                {% if "CongressScore.official" in content_types %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped" id="search-table-officials">
+                        <thead>
+                            <tr class="sort-container">
+                                <th class="btn-info header-cell"></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__lastName" data-sort="lastName">Name</a></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__party" data-sort="party">Party</a></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__title" data-sort="title">Title</a></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__districtState,districtInt" data-sort="districtState,districtInt">Constituency</a></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__firstElected" data-sort="firstElected">First Term Began</a></th>
+                                <th class="link-container" style="min-width: 110px"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__baseScore" data-sort="baseScore">Base Score</a></th>
+                                <th class="btn-info header-cell" style="width:100px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in page.object_list %}
+                            {% if result.content_type == "CongressScore.official" %}
+                            <tr id="{{result.firstName|slugify}}{{result.lastName|slugify}}">{%autoescape off %}
+                                    <td><a class="official-microportrait-link" href="/CongressScore/Legislator/{{ result.pk }}/">{{ result.microPortraitCode }}</a></td>{{result.quickInfo}}{%endautoescape%}
+                            </tr>
+                            {% endif %}{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                {% endblock %}
+                
+                {% block laws %}
+                {% if "CongressScore.law" in content_types %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped" id="search-table-laws">
+                        <thead>
+                            <tr class="sort-container">
+                                <th class="btn-info header-cell"></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__name" data-sort="name">Name</a></th>
+                                <th class="link-container" style="min-width: 79px"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__house" data-sort="house">House</a></th>
+                                <th class="link-container" style="min-width: 110px"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__lastChange">Last Change</a></th>
+                                <th class="link-container"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__status">Status</a></th>
+                                <th class="link-container" style="min-width: 110px"><a class="btn-info header-cell header-btn sort-select" data-select-param="sort_by__baseScore" data-sort="baseScore">Base Score</a></th>
+                                <th class="btn-info header-cell" style="width:70px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in page.object_list %}
+                            {% if result.content_type == "CongressScore.law"%}
+                            <tr id="{{result.name|slugify}}">{%autoescape off%}
+                                    <td><a class="official-microportrait-link" href="/CongressScore/Bill/{{ result.pk }}/"> </a></td><td>{{ result.name }}</td>{{result.quickInfo}}{%endautoescape%}
+                            </tr>
+                            {% endif %}{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                {% endblock %}
+            {% endif %}
+
+            {% if page.has_previous or page.has_next %}
+            <nav>
+              <ul class="pagination">
+                {% with page.paginator as Paginator %}
+                {% with Paginator.num_pages as totalPages %}
+                <li><a data-page="1"><span aria-hidden="true">First</span><span class="sr-only">First</span></a></li>
+                {% if page.has_previous %}{% if page.previous_page_number > 1 %}<li><a href="?q={{ query }}&amp;page={{ page.previous_page_number|add:"-1" }}">{{ page.previous_page_number|add:"-1" }}</a></li>{% endif %}
+                <li><a data-page="{{ page.previous_page_number }}">{{ page.previous_page_number }}</a></li>{% endif %}
+                <li><a href="#" class="active">{{ page.number }}</a></li>
+                {% if page.has_next %}<li><a data-page="{{ page.next_page_number }}">{{ page.next_page_number }}</a></li>{% endif %}
+                {% if Paginator.num_pages > page.next_page_number %}<li><a data-page="{{ page.next_page_number|add:"1" }}">{{ page.next_page_number|add:"1" }}</a></li>{% endif %}
+                <li><a {% if totalPages > 0 %}data-page={{ Paginator.num_pages }}"{% else %} class="disabled"{% endif %}><span aria-hidden="true">Last</span><span class="sr-only">Last</span></a></li>
+                {% endwith %}
+                {% endwith %}
+              </ul>
+            </nav>
+            {% endif %}
+            <p id="results-selector-container">Show <a data-results-no="15">15</a> | <a data-results-no="25">25</a> | <a data-results-no="50">50</a> | <a data-results-no="100">100</a> results per page</p>
+    </form>
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+    var activateParameterSelection = function(parameter, data) {
+        if (parameter.startsWith("sort_by")) {
+            if (data.substr(0,1) == "-"){
+                $("a[data-select-param=\"" + parameter + "__" + data.substr(1) + "\"]").addClass("active highlight").append('<span class="glyphicon glyphicon-triangle-bottom"></span>');
+            }
+            else {
+                $("a[data-select-param=\"" + parameter + "__" + data + "\"]").addClass("active highlight").append('<span class="glyphicon glyphicon-triangle-top"></span>');
+            }
+        } else {
+            $("a[data-select-param=\"" + parameter + "__" + data + "\"]").addClass("active highlight");
+        }
+    };
+    var activateParameterSelections = function(get_data){
+        for (var parameter in get_data) {
+            for (var i = 0; i < get_data[parameter].length; i++) {
+                activateParameterSelection(parameter, get_data[parameter][i]);
+            }
+        }
+    };
+    (function(){
+        var get_data = {};
+        get_data["sort_by"] = {% if "sort_by" in request.GET %}["{{ request.GET.sort_by }}"] {% else %} ["lastName"] {% endif %};
+        get_data["selected_facets"] = {% if "selected_facets" in request.GET %} ["{{ request.GET.selected_facets }}"] {% else %} "" {% endif %};
+        activateParameterSelections(get_data);
+    })();
+
+</script>
+<script src="{{STATIC_URL}}search-init.js"></script><link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/tooltipster-master/css/tooltipster.css"/><link rel="stylesheet" type="text/css" href="{{STATIC_URL}}/search.css"/>
+
+{% endblock %}

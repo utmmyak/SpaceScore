@@ -1,0 +1,23 @@
+{% extends "search/search.html" %}
+{% block heading_text %}<h1>Explore Legislators</h1>{% endblock %}
+{% block filters %}
+            <div class="col-xs-4" style="width: 34.6%; padding-left: 2px; padding-right: 0; margin-right: -22px">
+                <div class="btn-group">
+                    <span class="input-group-addon btn-lg" style="background-color: rgb(84, 165, 235);border-color: #357ebd;color:white;display:inline-block;width:53.5px;float:left;height: 33px;line-height: 1.34;">Type</span>
+                    <a class="btn btn-primary" id="my-officials-link" href="/CongressScore/MyLegislators/?q=">My Legislators</a>
+                    <a class="btn btn-primary replace-link" href="/CongressScore/Bill/">Bills</a>
+                    <a class="btn btn-primary active" href="/CongressScore/Legislator/">Legislators</a>
+                    <a class="btn btn-primary replace-link" href="/CongressScore/">All</a>
+                </div>
+            </div>
+            <div class="col-xs-4" style="padding-left:3px; padding-right:0">
+                <div class="btn-group" style="margin-right: -20px" id="filter-container">
+                    <span class="input-group-addon btn-lg" style="display:inline-block;width:53.5px;float:left;height:33px;line-height:1.34;">Filter</span>
+                    <a class="btn btn-default facet-select" data-select-param="selected_facets__house:HS" data-facet="house:HS">House</a>
+                    <a class="btn btn-default facet-select" data-select-param="selected_facets__house:SN" data-facet="house:SN">Senate</a>
+                    <a class="btn btn-default facet-select" data-select-param="selected_facets__party:DEM" data-facet="party:DEM">Democrat</a>
+                    <a class="btn btn-default facet-select" data-select-param="selected_facets__party:REP" data-facet="party:REP">Republican</a>
+                </div>
+            </div>
+{% endblock %}
+{% block laws %}{% endblock %}{# don't need laws in officials page #}

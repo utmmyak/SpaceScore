@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %} {{Committee}} Details{% endblock %}
+{% block header %}<meta name="description" content="{{ Committee }} details - SpaceScore - Track your Legislators' records on space with detailed ratings on human spaceflight, unmanned spaceflight, space privatization and public spaceflight.">{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="col-xs-7">
+			<h1>{{ Committee }}</h1>
+			<div class="quickheaderinfo">{{ Committee.getQuickInfoHeader }}</div>
+			<div class="panel panel-info">
+				<div class="panel-heading"><h3 class="panel-title">Description</h3></div>
+				<div class="panel-body">
+					{{ Committee.description|linebreaks }}
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xs-5">
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row"
+						><div class="col-xs-6 colscore"><div id="scorehsf">
+							<span class="score-title">Power Modifier:</span>
+							<input id="hsfweight-display" value="{% widthratio Committee.powerModifier 1 100 %}" data-fgColor="#7F00FF" data-thickness=.25 data-skin="tron">
+						</div></div
+						><div class="col-xs-6 colscore"><div id="scoreusf"{% if Official.unmannedsfScore == None %} class="noscore"{% endif %}>
+							<span class="score-title">Space Relatedness:</span>
+							<input id="usfweight-display" value="{% widthratio Committee.spaceRelatedness 1 100 %}" data-fgColor="#FFFF00" data-thickness=.25 data-skin="tron">
+						</div></div
+					></div
+					><div class="row" style="margin-top: 20px">
+						<div class="center-block" style="text-align: center">
+							<div id="scorebase">
+								<span id="basescore-title">Power Score:</span>
+								<input id="baseweight-display" value="0" data-fgColor="#00FFFF" data-thickness=.35 data-skin="tron">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% if Committee.subcommittees %}
+	<div class="col-xs-6">
+		<div class="panel panel-info">
+			<div class="panel-heading"><h3 class="panel-title">Subcommittees</h3></div>
+			<div class="panel-body">
+				<div class="list-group">
+					{% for newCommittee in Committee.subcommittees %}
+						<a href="{{ newCommittee.url }}" id="{{newCommittee|slugify}}" class="list-group-item"><span class="result-text-container" style="top: 4px"> {{ newCommittee }} &bull; {{ newCommittee.getQuickInfoText }}</span></a>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
+
+	{% if Committee.committee_laws.all %}
+	<div class="col-xs-6">
+		<div class="panel panel-info">
+			<div class="panel-heading"><h3 class="panel-title">Assigned Bills</h3></div>
+			<div class="panel-body">
+				<div class="list-group">
+					{% for Law in Committee.committee_laws.all %}
+						<a href="{{ Law.url }}" id="{{Law|slugify}}" class="list-group-item"><span class="result-text-container" style="top: 4px"> {{ Law }} &bull; {{ Law.getQuickInfoText }}</span></a>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+
+	<div class="row">
+		<div class="col-xs-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading"><h3 class="panel-title">Democrats</h3></div>
+				<div class="panel-body">
+					<div class="list-group">
+					{% if Committee.rankingMember %}
+						
+						<a href="{{ Committee.rankingMember.url }}" id="{{Committee.rankingMember|slugify}}" class="list-group-item"><span class="result-text-container"><h4>Ranking Member</h4> {{ Committee.rankingMember }} &bull; {{ Committee.rankingMember.getQuickInfoText }}</span></a>
+					{% endif %}
+
+					{% for Official in member_officials_dem %}
+						<a href="{{ Official.url }}" id="{{Official|slugify}}" class="list-group-item"><span class="result-text-container"> {{ Official }} &bull; {{ Official.getQuickInfoText }}</span></a>
+					{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading"><h3 class="panel-title">Republicans</h3></div>
+				<div class="panel-body">
+					<div class="list-group">
+					{% if Committee.chairperson %}
+						
+						<a href="{{ Committee.chairperson.url }}" id="{{Committee.chairperson|slugify}}" class="list-group-item"><span class="result-text-container"><h4>Chairperson</h4> {{ Committee.chairperson }} &bull; {{ Committee.chairperson.getQuickInfoText }}</span></a>
+					{% endif %}
+					{% for Official in member_officials_rep %}
+						<a href="{{ Official.url }}" id="{{Official|slugify}}" class="list-group-item"><span class="result-text-container"> {{ Official }} &bull; {{ Official.getQuickInfoText }}</span></a>
+					{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block footer %}
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="{{STATIC_URL}}/tooltipster-master/js/jquery.tooltipster.min.js"></script>
+	<script type="text/javascript" src="{{STATIC_URL}}/jquery.knob.js"></script>
+	<script type="text/javascript" src="{{STATIC_URL}}/committee-details-init.js"></script>
+{% endblock %}

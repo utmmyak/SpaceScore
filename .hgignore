@@ -1,0 +1,6 @@
+syntax: glob
+db.sqlite3.orig
+.hgignore
+SpaceScore\urls.py.orig
+SpaceScore\secrets.py
+.idea/
